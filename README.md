@@ -300,5 +300,3 @@ Check for AWS resources such as ECR images or load balancers if deletion is bloc
 ## License
 
 MIT — see [LICENSE](LICENSE).
-#   I D P - E N D - T O - E N D - F L O W  
- 

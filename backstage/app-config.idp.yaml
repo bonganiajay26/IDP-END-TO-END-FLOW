@@ -1,0 +1,19 @@
+app:
+  title: Internal Developer Platform
+  baseUrl: http://localhost:3000
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+integrations:
+  github:
+    - host: github.com
+      token: ${GITHUB_TOKEN}
+catalog:
+  rules:
+    - allow: [Component, System, Group, User, Resource, Location, Template, API]
+  locations:
+    - type: file
+      target: ./catalog/all.yaml
+    - type: file
+      target: ./templates/microservice/template.yaml

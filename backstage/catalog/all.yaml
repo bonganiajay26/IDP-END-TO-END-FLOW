@@ -1,0 +1,27 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: internal-developer-platform
+  description: AWS EKS Internal Developer Platform
+spec:
+  owner: platform-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform-team
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sample-service
+  annotations:
+    github.com/project-slug: bonganiajay26/internal-developer-platform
+spec:
+  type: service
+  lifecycle: experimental
+  owner: platform-team
+  system: internal-developer-platform

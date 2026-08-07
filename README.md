@@ -300,3 +300,15 @@ Check for AWS resources such as ECR images or load balancers if deletion is bloc
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Backstage developer portal
+
+Backstage is the **developer-experience and self-service layer**. It exposes the software catalog and golden paths; Terraform still provisions infrastructure, GitHub Actions performs CI, Argo CD performs GitOps deployment, and EKS runs workloads. Starter assets are in `backstage/`; see [`docs/backstage-self-service.md`](docs/backstage-self-service.md).
+
+```text
+Developer -> Backstage -> Golden Path -> GitHub -> GitHub Actions -> ECR
+                                      \-> GitOps -> Argo CD -> EKS
+Backstage -> approved Terraform workflow -> AWS
+EKS -> Prometheus -> Grafana
+```
+

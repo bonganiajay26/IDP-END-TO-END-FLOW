@@ -1,0 +1,63 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: eks-python-microservice
+  title: Create EKS Python Microservice
+  description: Golden path for a containerized Python service
+spec:
+  owner: platform-team
+  type: service
+  parameters:
+    - title: Service details
+      required: [name, owner]
+      properties:
+        name:
+          title: Service name
+          type: string
+          pattern: '^[a-z0-9-]+$'
+        owner:
+          title: Owner
+          type: string
+          ui:field: OwnerPicker
+        description:
+          title: Description
+          type: string
+    - title: Repository
+      required: [repoUrl]
+      properties:
+        repoUrl:
+          title: GitHub repository
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts: [github.com]
+            allowedOwners: [bonganiajay26]
+  steps:
+    - id: fetch
+      name: Render golden path
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+    - id: publish
+      name: Publish repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: ${{ parameters.description }}
+        defaultBranch: main
+    - id: register
+      name: Register in catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Catalog
+        entityRef: ${{ steps.register.output.entityRef }}

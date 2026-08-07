@@ -293,3 +293,38 @@ docs/
 Most importantly, I would **not make Backstage another deployment tool**. Backstage is the developer-experience/self-service layer; Terraform provisions infrastructure, GitHub Actions handles CI, and Argo CD remains the GitOps deployment authority.
 
 To let me add this directly to your repository, update the ChatGPT GitHub connector/app permission so it has **repository Contents write access** for `bonganiajay26/internal-developer-platform`. Once that is enabled, tell me **“permission updated”**, and I can retry the repository change.
+==========================================================================================
+
+
+Developer
+    |
+    v
+Backstage
+    |
+    +--> Software Catalog
+    +--> Golden Path / Create Microservice
+    +--> Self-Service Infrastructure
+              |
+       +------+------+
+       |             |
+       v             v
+     GitHub       Terraform
+       |             |
+       v             v
+GitHub Actions      AWS
+Test/Build/Scan   VPC/EKS/ECR
+       |
+       v
+      ECR
+       |
+GitOps desired state
+       |
+       v
+    Argo CD
+       |
+       v
+      EKS
+       |
+ +-----+------+
+ |            |
+Prometheus  Grafana

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sample-api
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/bonganiajay26/internal-developer-platform.git
+    targetRevision: main
+    path: gitops/apps/sample-api/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sample-api
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

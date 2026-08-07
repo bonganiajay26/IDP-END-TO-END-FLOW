@@ -1,0 +1,9 @@
+aws_region   = "ap-south-1"
+project_name = "idp-demo"
+environment  = "dev"
+github_org   = "bonganiajay26"
+github_repo  = "internal-developer-platform"
+
+# Optional overrides
+# cluster_version     = "1.36"
+# node_instance_types = ["t3.medium"]

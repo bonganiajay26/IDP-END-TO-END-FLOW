@@ -1,0 +1,221 @@
+In the project we built so far, **Backstage is not used yet**.
+
+Right now the platform flow is:
+
+```text
+Developer
+   |
+   v
+GitHub
+   |
+   v
+GitHub Actions
+   |
+   +--> Test
+   +--> Build
+   +--> Trivy Scan
+   +--> Push image to ECR
+   +--> Update GitOps manifest
+                |
+                v
+             Argo CD
+                |
+                v
+               EKS
+                |
+        +-------+--------+
+        |                |
+        v                v
+ Prometheus          Grafana
+```
+
+For a real **Internal Developer Platform**, Backstage should sit in front as the **developer self-service portal**.
+
+```text
+                    +----------------------+
+Developer --------> |      Backstage       |
+                    | Developer Portal     |
+                    +----------+-----------+
+                               |
+              +----------------+----------------+
+              |                |                |
+              v                v                v
+       Service Catalog    Templates       Documentation
+                               |
+                               v
+                    Software Template
+                               |
+                   Creates GitHub repository
+                               |
+                               v
+                        GitHub Actions
+                               |
+                    Build -> Test -> Scan
+                               |
+                               v
+                             ECR
+                               |
+                               v
+                       GitOps repository
+                               |
+                               v
+                            Argo CD
+                               |
+                               v
+                              EKS
+```
+
+The important point is: **Backstage itself should not directly provision EKS in our design**.
+
+Instead, Backstage acts as the user-facing platform layer. A developer clicks something like:
+
+> **Create New Microservice**
+
+Backstage then collects inputs such as:
+
+```text
+Service Name: payment-api
+Owner: payments-team
+Environment: dev
+Runtime: Python
+CPU: 250m
+Memory: 512Mi
+Database: None
+Repository: GitHub
+```
+
+Then a Backstage Software Template can automatically create:
+
+```text
+payment-api/
+├── src/
+├── tests/
+├── Dockerfile
+├── catalog-info.yaml
+├── .github/
+│   └── workflows/
+│       └── ci.yaml
+├── k8s/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── servicemonitor.yaml
+└── README.md
+```
+
+The developer doesn't need to manually learn all the Terraform, Kubernetes, Docker, GitHub Actions, Prometheus, and Argo CD implementation details just to deploy one service.
+
+That is exactly why Backstage is valuable.
+
+For your project, I would divide provisioning into **two levels**.
+
+| Platform responsibility     | Technology                       |
+| --------------------------- | -------------------------------- |
+| Developer portal            | **Backstage**                    |
+| Service catalog             | **Backstage Catalog**            |
+| New service creation        | **Backstage Software Templates** |
+| Git repository              | GitHub                           |
+| CI                          | GitHub Actions                   |
+| Container registry          | ECR                              |
+| Infrastructure provisioning | Terraform                        |
+| Kubernetes platform         | EKS                              |
+| Application deployment      | Argo CD                          |
+| Metrics                     | Prometheus                       |
+| Dashboards                  | Grafana                          |
+| Security scanning           | Trivy                            |
+
+There is also a more advanced version.
+
+Backstage can trigger Terraform automation to provision things like:
+
+```text
+Developer
+   |
+   v
+Backstage
+
+"Create PostgreSQL Database"
+         |
+         v
+Terraform workflow
+         |
+         v
+AWS RDS
+
+
+"Create S3 Bucket"
+         |
+         v
+Terraform workflow
+         |
+         v
+Amazon S3
+
+
+"Create Kubernetes Environment"
+         |
+         v
+Terraform workflow
+         |
+         v
+EKS Namespace / IAM / Network
+```
+
+So the complete platform becomes:
+
+```text
+                        DEVELOPER
+                            |
+                            v
+                  +-------------------+
+                  |     BACKSTAGE     |
+                  | Developer Portal  |
+                  +---------+---------+
+                            |
+          +-----------------+------------------+
+          |                 |                  |
+          v                 v                  v
+     Service Catalog   Golden Paths      Self-Service
+                           |             Infrastructure
+                           |                  |
+                           v                  v
+                        GitHub           Terraform
+                           |                  |
+                           |          +-------+-------+
+                           |          |       |       |
+                           |          v       v       v
+                           |         EKS     RDS      S3
+                           |
+                           v
+                    GitHub Actions
+                           |
+                  Build -> Test -> Scan
+                           |
+                           v
+                          ECR
+                           |
+                           v
+                     GitOps Repository
+                           |
+                           v
+                        Argo CD
+                           |
+                           v
+                          EKS
+                           |
+                +----------+----------+
+                |                     |
+                v                     v
+           Prometheus              Grafana
+```
+
+For interviews, this lets you explain the distinction very clearly:
+
+> **Backstage provides the developer experience. Terraform provides infrastructure automation. GitHub Actions provides CI. Argo CD provides GitOps-based CD. EKS provides the runtime. Prometheus and Grafana provide observability.**
+
+And the strongest platform-engineering explanation is:
+
+> “I don't expose Terraform or Kubernetes directly to developers. I expose opinionated golden paths through Backstage. Developers request capabilities such as a new microservice or database through the portal. Backstage generates standardized repositories and configuration, Terraform provisions infrastructure where required, GitHub Actions builds and validates artifacts, and Argo CD reconciles application state into EKS.”
+
+That turns the current project from a **DevOps/GitOps project** into a much stronger **Internal Developer Platform project**.
+
+I would add Backstage as the **next phase** of this repository rather than replacing anything already built. The existing Terraform, EKS, Argo CD, CI, Prometheus and Grafana layers remain exactly where they are.
